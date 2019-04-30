@@ -1,14 +1,14 @@
 import boto3
 from boto3.session import Session
 
-ACCOUNT_ID = ""
-USER_POOL_ID = ""
-USER_ID = ""
-PASSWORD = ""
-CLIENT_ID = ""
-IDENTITY_POOL_ID = ""
-TARGET_S3_BUCKET = ""
-FACEBOOK_TEST_TOKEN = ""
+ACCOUNT_ID = "838023436798"
+USER_POOL_ID = "us-west-2_QsC6VTvKW"
+USER_ID = "test@gmail.com"
+PASSWORD = "tanyao30"
+CLIENT_ID = "3c67mu2rbgpmco90vmcv7pk7ui"
+IDENTITY_POOL_ID = "us-west-2:5383de4b-f345-4189-b0ab-cae5c62c68a3"
+TARGET_S3_BUCKET = "ys-dev-web-iot-rule-test"
+FACEBOOK_TEST_TOKEN = "EAAFgsUKZBw08BAEVZC0ZCUIOVbKlSVuD0ahXIIeLTNigfqnFkYiMK3zMcqKlTP8vMKqDIomaZBwugpIuZBj64EZC5hrZBdcZAD50Phw3ryDZCEZClOuD6CH4ZABfqYjZAwI8EkcD5H1F1C8gytzITJuWNgPoer6ZA1Nlm3QMu0xF4yaZBpkjQJCqXkLhguhrcwrGX68GYZD"
 
 
 def auth_with_cognito(user_id, password):

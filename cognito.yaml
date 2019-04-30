@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Create Cognito User Pool.
+Resources:
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireNumbers: true
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          DeveloperOnlyAttribute: false
+          Mutable: true
+          Required: true
+      UsernameAttributes:
+        - email
+      UserPoolName: ys-dev-web-pool
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: ys-dev-web-pool-client
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ADMIN_NO_SRP_AUTH
+      RefreshTokenValidity: 7
+      UserPoolId: !Ref UserPool
+#  IdentityPool:
+#    Type: AWS::Cognito::IdentityPool
+#    Properties:
+#      AllowUnauthenticatedIdentities: false
+#      IdentityPoolName: IdPoolWithUserPool
+#      CognitoIdentityProviders:
+#        - ClientId: !Ref UserPoolClient
+#          ProviderName: !Sub cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}

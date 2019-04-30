@@ -1,13 +1,13 @@
 import boto3
 from boto3.session import Session
 
-ACCOUNT_ID = ""
-USER_POOL_ID = ""
-USER_ID = ""
-PASSWORD = ""
-CLIENT_ID = ""
-IDENTITY_POOL_ID = ""
-TARGET_S3_BUCKET = ""
+ACCOUNT_ID = "838023436798"
+USER_POOL_ID = "us-west-2_QsC6VTvKW"
+USER_ID = "test@gmail.com"
+PASSWORD = "tanyao30"
+CLIENT_ID = "3c67mu2rbgpmco90vmcv7pk7ui"
+IDENTITY_POOL_ID = "us-west-2:5383de4b-f345-4189-b0ab-cae5c62c68a3"
+TARGET_S3_BUCKET = "ys-dev-web-iot-rule-test"
 
 
 def auth(user_id, password):
