@@ -8,12 +8,12 @@ from boto3.session import Session
 # 認証プロバイダとしては、CognitoUserPoolとGoogleで試した。
 #
 
-ACCOUNT_ID = "838023436798"
-USER_POOL_ID = "us-west-2_HV5bF30H6"
-USER_ID = "geranium04.24.1981@gmail.com"
-PASSWORD = "tanyao30"
-CLIENT_ID = "5f55sk2msbsg1t2mi2q2vmvk1e"
-API_URL = "https://i02n1l6252.execute-api.us-west-2.amazonaws.com/prod/cognito"
+ACCOUNT_ID = ""
+USER_POOL_ID = ""
+USER_ID = ""
+PASSWORD = ""
+CLIENT_ID = ""
+API_URL = ""
 
 
 def auth_with_user_pool(user_id: str, password: str):
@@ -41,9 +41,17 @@ def api(id_token: str):
     return response
 
 
+# Cognito認証を使った場合
 auth_result = auth_with_user_pool(USER_ID, PASSWORD)
 response = api(auth_result["AuthenticationResult"]["IdToken"])
+print('**** Cognito ****')
+print(response)
+print(response.json())
 
+# Google認証を使った場合（事前にJWTの取得をしていることを前提にしている）
+id_token = ''
+response = api(id_token)
+print('**** Google ****')
 print(response)
 print(response.json())
 
