@@ -74,3 +74,4 @@ aws cognito-idp admin-respond-to-auth-challenge \
 ## 参考URL
 * [Cognito UserPoolsのFederationの使い方と、そのJWTを独自APIサーバーで検証する方法](https://qiita.com/yoskeoka/items/7474845087c66cf91b27)
 * [AWS CognitoとAPI Gatewayを組み合わせて、スマホアプリで要ログインなAPIを作る](https://qiita.com/lazyfellow/items/e6dd2941de9ae3d02d00)
+* [Cognitoから払い出されたIdTokenをAPI Gateway カスタムオーソライザーのLambda(Python3.6)で検証する方法](https://dev.classmethod.jp/cloud/aws/verify_cognit_idtoken_by_apig_custom_auth/)
