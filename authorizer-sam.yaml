@@ -16,6 +16,7 @@ Resources:
       Environment:
         Variables:
           USER_POOL_ID: us-west-2_HV5bF30H6
+          CLIENT_ID: 5f55sk2msbsg1t2mi2q2vmvk1e
   LogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

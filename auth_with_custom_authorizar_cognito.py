@@ -8,12 +8,12 @@ from boto3.session import Session
 # 認証プロバイダとしては、CognitoUserPoolとGoogleで試した。
 #
 
-ACCOUNT_ID = ""
-USER_POOL_ID = ""
-USER_ID = ""
-PASSWORD = ""
-CLIENT_ID = ""
-API_URL = ""
+ACCOUNT_ID = "xxxx"
+USER_POOL_ID = "us-west-2_xxxx"
+USER_ID = "xxxx"
+PASSWORD = "xxxx"
+CLIENT_ID = "xxxx"
+API_URL = "xxxx"
 
 
 def auth_with_user_pool(user_id: str, password: str):
@@ -33,7 +33,7 @@ def auth_with_user_pool(user_id: str, password: str):
 
 def api(id_token: str):
     # Authorization Headerを正しく設定しないと、401（Unauthorized）になる
-    headers = {'Authorization': id_token}
+    headers = {'Authorization': id_token, 'User-Agent': 'cognito-authorizer'}
 
     """IdTokenを設定し、ApiGatewayにアクセスする"""
     response = requests.get(API_URL, headers=headers)
@@ -49,9 +49,9 @@ print(response)
 print(response.json())
 
 # Google認証を使った場合（事前にJWTの取得をしていることを前提にしている）
-id_token = ''
-response = api(id_token)
-print('**** Google ****')
-print(response)
-print(response.json())
+# id_token = ''
+# response = api(id_token)
+# print('**** Google ****')
+# print(response)
+# print(response.json())
 

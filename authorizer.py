@@ -2,6 +2,8 @@ import re
 import os
 import json
 import jose
+import time
+import requests
 from http import HTTPStatus
 from jose import jwk, jwt
 from jose.utils import base64url_decode
@@ -10,6 +12,7 @@ from jose.utils import base64url_decode
 def lambda_handler(event, context):
     region = os.environ['AWS_DEFAULT_REGION']
     user_pool_id = os.environ['USER_POOL_ID']
+    client_id = os.environ['CLIENT_ID']
     account_id = event['requestContext']['accountId']
     api_id = event['requestContext']['apiId']
     stage = event['requestContext']['stage']
@@ -23,7 +26,8 @@ def lambda_handler(event, context):
     try:
         # Validate IdToken
         token = event['headers']['Authorization']
-        validate_token(token, region, user_pool_id)
+        user_agent = event['headers']['User-Agent']
+        validate_token(token, region, user_pool_id, client_id, user_agent)
 
         # Allow user to call APIGateway.
         policy.allowAllMethods()
@@ -40,11 +44,46 @@ def lambda_handler(event, context):
         raise e
 
 
-def validate_token(token, region, user_pool_id):
+def validate_token(token: str, region: str, user_pool_id: str, client_id: str, user_agent: str):
     # Validate whether to match local public key and remote one.
     keys_url = f'https://cognito-idp.{region}.amazonaws.com/{user_pool_id}/.well-known/jwks.json'
     headers = jwt.get_unverified_headers(token)
-    print(f'jwt header:{headers}')
+    print(f'token:{token}')
+
+    response = requests.get(keys_url)
+    keys = json.loads(response.text)['keys']
+    target_key = None
+    for key in keys:
+        if key['kid'] == headers['kid']:
+            target_key = key
+    if target_key is None:
+        raise InvalidTokenError('Invalid public key in headers.')
+
+    # Validate signature of JWT.
+    public_key = jwk.construct(target_key)
+    print(f'public_key:{public_key}')
+    message = token.rsplit('.', 1)[0].encode('utf-8')  # message = header + payload
+    signature = token.rsplit('.', 1)[1].encode('utf-8')
+    decode_signature = base64url_decode(signature)
+    print(f'message:{message}')
+    print(f'signature:{signature}')
+    print(f'decode_signature:{decode_signature}')
+
+    if not public_key.verify(message, decode_signature):
+        raise InvalidTokenError('Invalid token signature.')
+
+    # Validate expire of JWT.
+    claims = jwt.get_unverified_claims(token)
+    if time.time() > claims['exp']:
+        raise InvalidTokenError('Token is expired.')
+
+    # Validate aud claim which includes Client ID in Cognito.
+    if claims['aud'] != client_id:
+        raise InvalidTokenError('Invalid aud(Cognito Client ID).')
+
+    # Validate UserAgent in header. This is allowed cognito-authorizer only.
+    if user_agent != 'cognito-authorizer':
+        raise InvalidTokenError('Invalid UserAgent.')
 
 
 class InvalidTokenError(Exception):
