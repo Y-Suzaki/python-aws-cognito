@@ -8,12 +8,12 @@ from boto3.session import Session
 # 認証プロバイダとしては、CognitoUserPoolとGoogleで試した。
 #
 
-ACCOUNT_ID = "xxxx"
-USER_POOL_ID = "us-west-2_xxxx"
-USER_ID = "xxxx"
-PASSWORD = "xxxx"
-CLIENT_ID = "xxxx"
-API_URL = "xxxx"
+ACCOUNT_ID = "838023436798"
+USER_POOL_ID = "us-west-2_HV5bF30H6"
+USER_ID = "geranium04.24.1981@gmail.com"
+PASSWORD = "tanyao30"
+CLIENT_ID = "5f55sk2msbsg1t2mi2q2vmvk1e"
+API_URL = "https://i02n1l6252.execute-api.us-west-2.amazonaws.com/prod/cognito"
 
 
 def auth_with_user_pool(user_id: str, password: str):
