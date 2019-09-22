@@ -43,6 +43,7 @@ aws cognito-idp admin-respond-to-auth-challenge \
 
 ## Googleアカウントとの連携方法
 * [Google連携](docs/Google連携.md)
+* [LINE連携](docs/LINE連携.md)
 
 ## 参考URL
 * [Cognito UserPoolsのFederationの使い方と、そのJWTを独自APIサーバーで検証する方法](https://qiita.com/yoskeoka/items/7474845087c66cf91b27)
