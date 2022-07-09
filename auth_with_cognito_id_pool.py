@@ -1,6 +1,8 @@
 import boto3
 import os
 from boto3.session import Session
+import requests
+from requests_aws4auth import AWS4Auth
 
 ACCOUNT_ID = os.environ['ACCOUNT_ID']
 USER_POOL_ID = os.environ['USER_POOL_ID']
@@ -9,6 +11,7 @@ PASSWORD = os.environ['PASSWORD']
 CLIENT_ID = os.environ['CLIENT_ID']
 IDENTITY_POOL_ID = os.environ['IDENTITY_POOL_ID']
 TARGET_S3_BUCKET = "ys-dev-web-deploy-module"
+API_URL = os.environ['API_URL']
 
 region = 'ap-northeast-1'
 
@@ -59,8 +62,22 @@ def list_on_s3(credential):
         print(key.key)
 
 
+def access_api_gateway(credential):
+    """ IAM認証されたAPIGatewayにアクセスする。 """
+    aws_auth = AWS4Auth(
+        credential['AccessKeyId'],
+        credential['SecretKey'],
+        region,
+        'execute-api',
+        session_token=credential['SessionToken'],
+    )
+    response = requests.get(API_URL, auth=aws_auth)
+    print(response.text)
+
+
 _auth_result = auth(USER_ID, PASSWORD)
 _credential = authorize(id_token=_auth_result["AuthenticationResult"]["IdToken"])
 list_on_s3(_credential)
+access_api_gateway(_credential)
 
 print('Completed!')
