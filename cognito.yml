@@ -1,0 +1,121 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Create Cognito User Pool and Id Pool.
+Resources:
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: admin_only
+            Priority: 1
+      AliasAttributes:
+        - preferred_username
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+#      MfaConfiguration: OFF
+      Policies:
+        PasswordPolicy:
+          RequireLowercase: true
+          RequireSymbols: false
+          RequireNumbers: true
+          MinimumLength: 8
+          RequireUppercase: false
+#      Schema:
+#        - Name: preferred_username
+#          AttributeDataType: String
+#          DeveloperOnlyAttribute: false
+#          Mutable: true
+#          Required: true
+      UsernameConfiguration:
+        CaseSensitive: false
+      UserPoolName: ys-dev-web-pool
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: ys-dev-web-pool-client
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_ADMIN_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      GenerateSecret: false
+      PreventUserExistenceErrors: ENABLED
+      RefreshTokenValidity: 7
+      UserPoolId: !Ref UserPool
+
+  IdentityPool:
+    Type: AWS::Cognito::IdentityPool
+    Properties:
+      AllowUnauthenticatedIdentities: true
+      IdentityPoolName: ys-dev-web-id-pool
+      CognitoIdentityProviders:
+        - ClientId: !Ref UserPoolClient
+          ProviderName: !Sub cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}
+
+  UnauthenticatedRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "sts:AssumeRoleWithWebIdentity"
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Condition:
+              StringEquals:
+                "cognito-identity.amazonaws.com:aud":
+                  Ref: IdentityPool
+              ForAnyValue:StringLike:
+                "cognito-identity.amazonaws.com:amr": unauthenticated
+
+  AuthenticatedRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "sts:AssumeRoleWithWebIdentity"
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Condition:
+              StringEquals:
+                "cognito-identity.amazonaws.com:aud":
+                  Ref: IdentityPool
+              ForAnyValue:StringLike:
+                "cognito-identity.amazonaws.com:amr": authenticated
+
+  AuthenticatedPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: app-policy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - "s3:*"
+            Resource:
+              - "arn:aws:s3:::ys-dev-web-deploy-module*"
+      Roles:
+        - !Ref AuthenticatedRole
+
+  RoleAttachment:
+    Type: AWS::Cognito::IdentityPoolRoleAttachment
+    Properties:
+      IdentityPoolId:
+        Ref: IdentityPool
+      Roles:
+        unauthenticated: !GetAtt UnauthenticatedRole.Arn
+        authenticated: !GetAtt AuthenticatedRole.Arn
+
+Outputs:
+  UserPool:
+    Value: !Ref UserPool
+    Export:
+      Name: ys-dev-web-user-pool
+  IdentityPool:
+    Value: !Ref IdentityPool
+    Export:
+      Name: ys-dev-web-id-pool
