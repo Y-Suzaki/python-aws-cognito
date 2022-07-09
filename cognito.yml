@@ -12,6 +12,8 @@ Resources:
         - preferred_username
       AdminCreateUserConfig:
         AllowAdminCreateUserOnly: true
+      LambdaConfig:
+
 #      MfaConfiguration: OFF
       Policies:
         PasswordPolicy:

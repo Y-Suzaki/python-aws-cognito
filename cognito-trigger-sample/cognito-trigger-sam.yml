@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: Serverless application for cognito trigger
+
+Resources:
+  ServerlessFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: python3.9
+      Handler: trigger.lambda_handler
+      FunctionName: !Sub cognito-trigger
+      MemorySize: 128
+      Timeout: 300
+      CodeUri: ./serverless-function.zip
+      Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          USER_POOL_ID: us-west-2_HV5bF30H6
+          CLIENT_ID: 5f55sk2msbsg1t2mi2q2vmvk1e
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/cognito-trigger
+      RetentionInDays: 7
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      -
+        PolicyName: lambda_logs_policy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+          - Effect: Allow
+            Action: logs:CreateLogGroup
+            Resource: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*
+          - Effect: Allow
+            Action:
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${LogGroup}:*
+
+  LambdaAddPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt ServerlessFunction.Arn
+      Principal: cognito-idp.amazonaws.com
